@@ -107,7 +107,20 @@ namespace MsM_Test.WebAPI.Controllers
                 return BadRequest("Account is not exist");
             }
             return Ok(result);
-
         }
+
+        [HttpPost("/admin/deleteuser")]
+        public async Task<IActionResult> DeleteUser(Guid Id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var result = await _userService.DeleteUser(Id);
+            if (!result.IsSucceed)
+            {
+                return BadRequest(result.Messeage);
+            }
+            return Ok(result);
+        }
+
     }
 }

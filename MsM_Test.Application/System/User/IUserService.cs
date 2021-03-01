@@ -20,5 +20,7 @@ namespace MsM_Test.Application.System.User
         Task<ApiRespond<bool>> UpdateUser(UserRequestUpdate request);
 
         Task<bool> UpdateUserRole(UserRoleUpdateRequest request);
+
+        Task<ApiRespond<bool>> DeleteUser(Guid Id);
     }
 }

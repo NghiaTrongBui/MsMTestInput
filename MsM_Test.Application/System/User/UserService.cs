@@ -119,6 +119,7 @@ namespace MsM_Test.Application.System.User
                 Email = request.Email,
                 PhoneNumber = request.PhoneNumber,
                 UserName = request.UserName,
+                IsActive = false
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -188,7 +189,7 @@ namespace MsM_Test.Application.System.User
 
         public async Task<ApiRespond<bool>> UpdateUser(UserRequestUpdate request)
         {
-            if(await _userManager.Users.AnyAsync(x=>x.Email==request.Email && x.Id == request.Id))
+            if(await _userManager.Users.AnyAsync(x=>x.Email==request.Email && x.Id != request.Id))
             {
                 return new ApiRespond<bool>()
                 {
@@ -251,6 +252,43 @@ namespace MsM_Test.Application.System.User
             }
 
             return true;
+        }
+
+        public async Task<ApiRespond<bool>> DeleteUser(Guid Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id.ToString());
+
+            if(user == null)
+            {
+                return new ApiRespond<bool>
+                {
+                    IsSucceed = false,
+                    Messeage = "User is not exist"
+                };
+            }
+
+            if ((bool)user.IsActive)
+            {
+                return new ApiRespond<bool>
+                {
+                    IsSucceed = true
+                };
+            }
+
+            user.IsActive = false;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return new ApiRespond<bool>()
+                {
+                    IsSucceed = false,
+                    Messeage = "Cannot delete user"
+                };
+            }
+
+            return new ApiRespond<bool> { IsSucceed = true };
+
         }
     }
 }
