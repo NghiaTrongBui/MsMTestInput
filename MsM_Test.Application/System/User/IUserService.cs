@@ -17,6 +17,8 @@ namespace MsM_Test.Application.System.User
 
         Task<ApiRespond<UserViewManager>> GetUserByID(Guid id);
 
-        Task<bool> UpdateUser(UserRequestUpdate user);
+        Task<ApiRespond<bool>> UpdateUser(UserRequestUpdate request);
+
+        Task<bool> UpdateUserRole(UserRoleUpdateRequest request);
     }
 }

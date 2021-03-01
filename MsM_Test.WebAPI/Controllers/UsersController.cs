@@ -80,5 +80,34 @@ namespace MsM_Test.WebAPI.Controllers
 
             return Ok(result.RespondObj);
         }
+
+        //[HttpPut("{request.Id}/updateuser")]
+        [HttpPost("/admin/updateuser")]
+        public async Task<IActionResult> UpdateUser(UserRequestUpdate request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var result = await _userService.UpdateUser(request);
+            if (!result.IsSucceed)
+            {
+                return BadRequest(result.Messeage);
+            }
+            return Ok(result);
+        }
+
+        //[HttpPut("{request.UserId}/roles")]
+        [HttpPost("/admin/roles")]
+        public async Task<IActionResult> UpdateUserRole(/*[FromForm]*/UserRoleUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var result = await _userService.UpdateUserRole(request);
+            if (!result)
+            {
+                return BadRequest("Account is not exist");
+            }
+            return Ok(result);
+
+        }
     }
 }

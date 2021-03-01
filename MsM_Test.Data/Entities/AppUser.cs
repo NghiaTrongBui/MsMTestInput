@@ -10,5 +10,7 @@ namespace MsM_Test.Data.Entities
         public string LastName { get; set; }
 
         public DateTime Dob { get; set; }
+
+        public bool? IsActive { get; set; }
     }
 }

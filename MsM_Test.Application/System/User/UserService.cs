@@ -55,6 +55,15 @@ namespace MsM_Test.Application.System.User
                 }; 
             }
 
+            if((bool)!user.IsActive)
+            {
+                return new ApiRespond<string>
+                {
+                    IsSucceed = false,
+                    Messeage = "User is not active"
+                };
+            }
+
             // kiem tra role va y/c nhap them
             
             var roles = await _userManager.GetRolesAsync(user);
@@ -109,16 +118,15 @@ namespace MsM_Test.Application.System.User
                 Dob = request.Dob,
                 Email = request.Email,
                 PhoneNumber = request.PhoneNumber,
-                UserName = request.UserName
+                UserName = request.UserName,
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded) 
             {
-                new ApiRespond<bool>
+                return new ApiRespond<bool>
                 {
                     IsSucceed = true,
-                    RespondObj = true //chuyen sang trang nao do
                 };
             }
 
@@ -167,7 +175,8 @@ namespace MsM_Test.Application.System.User
                 PhoneNumber = user.PhoneNumber,
                 UserName = user.UserName,
                 Email = user.Email,
-                Dob = user.Dob
+                Dob = user.Dob,
+                IsActive = (bool)user.IsActive
             };
 
             return new ApiRespond<UserViewManager>
@@ -177,9 +186,71 @@ namespace MsM_Test.Application.System.User
             };
         }
 
-        public Task<bool> UpdateUser(UserRequestUpdate user)
+        public async Task<ApiRespond<bool>> UpdateUser(UserRequestUpdate request)
         {
-            return null;
+            if(await _userManager.Users.AnyAsync(x=>x.Email==request.Email && x.Id == request.Id))
+            {
+                return new ApiRespond<bool>()
+                {
+                    IsSucceed = false,
+                    Messeage = "Email is exist"
+                };
+            }
+
+            var user = await _userManager.FindByIdAsync(request.Id.ToString());
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.Email = request.Email;
+            user.Dob = request.Dob;
+            user.PhoneNumber = request.PhoneNumber;
+            user.IsActive = request.IsActive;
+
+            var result = await  _userManager.UpdateAsync(user);
+            if(!result.Succeeded)
+            {
+                return new ApiRespond<bool>()
+                {
+                    IsSucceed = false,
+                    Messeage = "Update error"
+                };
+            }
+
+            return new ApiRespond<bool>
+            {
+                IsSucceed = true,
+            };
+        }
+
+        public async Task<bool> UpdateUserRole(UserRoleUpdateRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+            if(user == null)
+            {
+                return false;
+            }
+
+            var removedRoles = request.Roles.Where(x => x.Selected == false)
+                                            .Select(x => x.Name).ToList();
+            foreach (var roleName in removedRoles)
+            {
+                if(await _userManager.IsInRoleAsync(user, roleName) == true)
+                {
+                    await _userManager.RemoveFromRoleAsync(user, roleName);
+                }
+            }
+
+            var addRoles = request.Roles.Where(x => x.Selected == true)
+                                        .Select(x => x.Name).ToList();
+
+            foreach(var roleName in addRoles)
+            {
+                if(await _userManager.IsInRoleAsync(user, roleName) == false)
+                {
+                    await _userManager.AddToRoleAsync(user, roleName);
+                }
+            }
+
+            return true;
         }
     }
 }

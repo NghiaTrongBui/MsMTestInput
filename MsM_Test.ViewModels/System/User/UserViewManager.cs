@@ -26,5 +26,8 @@ namespace MsM_Test.ViewModels.System.User
 
         [Display(Name = "Ngày sinh")]
         public DateTime Dob { get; set; }
+
+        [Display(Name = "Kích hoạt")]
+        public bool IsActive { get; set; }
     }
 }

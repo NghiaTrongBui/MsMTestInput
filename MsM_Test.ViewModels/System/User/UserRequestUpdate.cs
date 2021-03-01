@@ -24,5 +24,8 @@ namespace MsM_Test.ViewModels.System.User
 
         [Display(Name = "Số điện thoại")]
         public string PhoneNumber { get; set; }
+
+        [Display(Name = "Số điện thoại")]
+        public bool IsActive { get; set; }
     }
 }
